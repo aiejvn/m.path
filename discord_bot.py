@@ -9,6 +9,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 
+#image = 'C:\Users\arlen\Desktop\Queens\DISCORD\m.path\DUCK.png'
+
 bot = discord.Client(intents=intents)
 
 hello = "hello"
@@ -40,22 +42,17 @@ async def on_message(message):
     
 
     if not(read_message):
+        if message.content.startswith('m.image'):
+            with open(image, 'rb') as f:
+                picture = discord.File(f)
+                await message.channel.send(file=picture)
+
         if message.content.startswith('m.read'):
-            read_message_author_id = message.author.id
-            print(message.author.id)
-            message_author_name = message.author.display_name
-            await message.channel.send(f"Ok {message_author_name}, what message would you like me to read?")
-            read_message = True
+            await m_read(message)
     else:
         if (read_message_author_id == message.author.id):
-            print("Wow")
-            #await message.channel.send("Ok, give me a little bit to analyze the message...")
-            message_content = message.content
-            # Put the code for reading the message content here
-            await message.channel.send(f"Ok, here are the results: {message_content}")
-            # Put the code for showing results here
-            await message.channel.send(results_message)
-            read_message = False
+            await m_anaylze(message)
+
 
 @bot.event
 async def on_reaction_add(reaction, react_user):
@@ -70,6 +67,32 @@ async def on_reaction_add(reaction, react_user):
         elif reaction.emoji == "❌":
             await reaction.message.channel.send("Sorry to hear that. I'll try to do better next time!")
             feedback_recieved = True
+
+
+async def m_read(command):
+    global read_message
+    global read_message_author_id
+
+    read_message_author_id = command.author.id
+    print(command.author.id)
+    message_author_name = command.author.display_name
+    await command.channel.send(f"Ok {message_author_name}, what message would you like me to read?")
+    read_message = True
+
+async def m_anaylze(message_to_anaylze):
+    global read_message 
+    print("Wow")
+    await message_to_anaylze.channel.send("Ok, give me a little bit to analyze the message...")
+    message_content = message_to_anaylze.content
+
+    # Put the code for reading the message content here
+
+    await message_to_anaylze.channel.send(f"Ok, here are the results: {message_content}")
+   
+    # Put the code for showing results here
+
+    await message_to_anaylze.channel.send(results_message)
+    read_message = False
 
 def main():
     bot.run(TOKEN)
