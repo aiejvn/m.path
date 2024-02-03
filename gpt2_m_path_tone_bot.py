@@ -171,13 +171,13 @@ def detect_emotion(sample_message):
     
     expanded_sample = ""
     
-    for i in range(100):
+    for i in range(50):
         
-        input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x 13
+        input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x n size (n is # of tokens)
 
         output1 = gpt2_lm.generate(
             input_ids, 
-            max_length=len(input_ids)+18, 
+            max_length=input_ids.shape[1]+9, 
             num_beams=5, 
             no_repeat_ngram_size=2, 
             top_k=50, 
@@ -188,7 +188,7 @@ def detect_emotion(sample_message):
         
         output2 = gpt2_lm.generate(
             input_ids, 
-            max_length=len(input_ids)+12, # size of max_length must always be greater than the input token size
+            max_length=input_ids.shape[1]+6, # size of max_length must always be greater than the input token size
             num_beams=5, 
             no_repeat_ngram_size=2, 
             top_k=50, 
