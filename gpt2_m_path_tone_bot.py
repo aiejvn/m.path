@@ -1,5 +1,3 @@
-import numpy as np
-import tensorflow as tf
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Negative words:
@@ -171,7 +169,9 @@ def detect_emotion(sample_message):
     
     expanded_sample = ""
     
-    for i in range(50):
+    # 100 -> 6 minutes
+    # 25 -> 47 seconds
+    for i in range(25): 
         
         input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x n size (n is # of tokens)
 
@@ -198,7 +198,10 @@ def detect_emotion(sample_message):
         expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True)
         # to prevent 'i am feel' looping
     
+    print("---------------------------------------------------------------")
     print(f"Expanded message: {expanded_sample}") # Debug print, comment out in beta
+    print("---------------------------------------------------------------")
+    
     text_split = expanded_sample.lower().split()
     n = len(text_split)
     emotions_likelihood = {
@@ -228,7 +231,6 @@ def detect_emotion(sample_message):
     return emotions_likelihood
 
 if __name__ == "__main__":
-    print("---------------------------------------------------------------")
     sample_messages = [
         "Freaking hell mfs acting like THEY are the groundhogs", 
         "Okay this is the least prepared I’ve ever been for a test ever since data management", 
