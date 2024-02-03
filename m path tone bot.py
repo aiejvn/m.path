@@ -3,6 +3,7 @@ import numpy as np
 # from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 import keras
 import keras_nlp
+# USE KAGGLE - COPY INTO KAGGLE + DOWNLOAD THE GPT-2 MODEL ON THE WEBSITE
 
 # Doesn't make fanfiction + can be hypertuned!
 # # EN no CNN_DAILYMAIL does not produce as good of results
