@@ -1,6 +1,3 @@
-import os, discord
-from dotenv import load_dotenv
-
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -9,7 +6,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 
-#image = 'C:\Users\arlen\Desktop\Queens\DISCORD\m.path\DUCK.png'
+m_path = os.path.join(os.environ['USERPROFILE'], 'Desktop')
+
+image = m_path + '\m.path\DUCK.png'
 
 bot = discord.Client(intents=intents)
 
@@ -43,9 +42,7 @@ async def on_message(message):
 
     if not(read_message):
         if message.content.startswith('m.image'):
-            with open(image, 'rb') as f:
-                picture = discord.File(f)
-                await message.channel.send(file=picture)
+            await message.channel.send(file=discord.File(image))
 
         if message.content.startswith('m.read'):
             await m_read(message)
