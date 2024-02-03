@@ -1,3 +1,4 @@
+# add torch and transformers to requirements.txt
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Negative words:
@@ -171,32 +172,30 @@ def detect_emotion(sample_message):
     
     # 100 -> 6 minutes
     # 25 -> 47 seconds
-    for i in range(25): 
-        
-        input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x n size (n is # of tokens)
+    input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x n size (n is # of tokens)
 
-        output1 = gpt2_lm.generate(
-            input_ids, 
-            max_length=input_ids.shape[1]+9, 
-            num_beams=5, 
-            no_repeat_ngram_size=2, 
-            top_k=50, 
-            top_p=0.95, 
-            temperature=0.7, 
-        ) # 1 x 18
-        expanded_sample += tokenizer.decode(output1[0], skip_special_tokens=True) # String
-        
-        output2 = gpt2_lm.generate(
-            input_ids, 
-            max_length=input_ids.shape[1]+6, # size of max_length must always be greater than the input token size
-            num_beams=5, 
-            no_repeat_ngram_size=2, 
-            top_k=50, 
-            top_p=0.95, 
-            temperature=1.3, 
-        )
-        expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True)
-        # to prevent 'i am feel' looping
+    output1 = gpt2_lm.generate(
+        input_ids, 
+        max_length=input_ids.shape[1]+18, 
+        num_beams=5, 
+        no_repeat_ngram_size=2, 
+        top_k=50, 
+        top_p=0.95, 
+        temperature=0.7, 
+    ) # 1 x 18
+    expanded_sample += tokenizer.decode(output1[0], skip_special_tokens=True) # String
+
+    output2 = gpt2_lm.generate(
+        input_ids, 
+        max_length=input_ids.shape[1]+12, # size of max_length must always be greater than the input token size
+        num_beams=5, 
+        no_repeat_ngram_size=2, 
+        top_k=50, 
+        top_p=0.95, 
+        temperature=1.3, 
+    )
+    expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True)
+    # to prevent 'i am feel' looping
     
     print("---------------------------------------------------------------")
     print(f"Expanded message: {expanded_sample}") # Debug print, comment out in beta
@@ -244,3 +243,6 @@ if __name__ == "__main__":
         result = detect_emotion(sample_message.lower().strip("!.,=")) #  + " . I am feeling" optional
         for i in result:
             print(f"{i}: {result[i]}")
+    # result = detect_emotion("bruhhhh bruhhh bruhhh".lower().strip("!.,=")) # dupe letters bug
+    # for i in result:
+    #     print(f"{i}: {result[i]}")
