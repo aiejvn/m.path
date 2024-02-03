@@ -38,7 +38,9 @@ gpt2_lm.compile(sampler="random") # Not very deterministic - very unstable
 test1 = gpt2_lm.generate("The world hates me. ", max_length=1000)
 print(test1)
 
-# Negative words:
+# Negative words (Red):
+# including annoyance, which is a weaker form of anger
+
 angry_words = ["hate", 
                "angry", 
                "anger", 
@@ -58,7 +60,14 @@ angry_words = ["hate",
                "irritate", 
                "outrage", 
                "frustrate", 
-               "irritate" ]
+               "irritate", 
+               "kill yourself", 
+               "kys", 
+               "hell", 
+               "angry",
+               "SHUT UP",
+               "annoyed"
+              ]
 
 sad_words = ["bitter", 
              "dismal", 
@@ -84,7 +93,8 @@ sad_words = ["bitter",
              "weep", 
              "low", 
              "unhappy", 
-             "troubled"]
+             "troubled"
+            ]
 
 scared_words = ["afraid", 
                 "anxious", 
@@ -97,7 +107,9 @@ scared_words = ["afraid",
                 "shake", 
                 "terrif", 
                 "aghast", 
-                "terror"]
+                "terror",
+                "oh no"
+               ]
 
 disgust_words = ["suck", 
                  "appal", 
@@ -117,11 +129,33 @@ disgust_words = ["suck",
                  "sick", 
                  "fed up", 
                  "gross", 
-                 "squeam"]
+                 "squeam", 
+                 "indignant", 
+                 "invasion", 
+                 "freak",
+                 "ugh"]
+
+disappointed_words = ["man...",
+                      "alright...",
+                      "...",
+                      "ok...",
+                      ":/",
+                      ":T",
+                      "yeah...",
+                      "💀",
+                      "😶",
+                      "😐",
+                      "😑",
+                      "🙄",
+                      "okay.",
+                      "😔",
+                      "😞"
+                     ]
 
 negative_words = angry_words + sad_words + scared_words + disgust_words
 
-# Happy words (green):
+# Positive words (Green):
+# for now, encompasses excitement
 
 happy_words = ["cheerful", 
                "delight", 
@@ -154,11 +188,60 @@ happy_words = ["cheerful",
                "perky", 
                "live", 
                "laugh", 
-               "pink"]
+               "pink", 
+               "amaz", 
+               "good", 
+               "ha", 
+               "har", 
+               "win",
+               "yippee",
+               "hooray",
+               "nice",
+               ":)",
+               ":D",
+               "let's go!",
+               "omg",
+               "amazing!"
+              ]
 
-# Neutral words (gray):
+# The speaker is most likely in a good mood and kidding around! 
+amused_words = ["hehe",
+                "LOL",
+               "XD",
+               "LMAO",
+               "LMFAO",
+               "haha",
+               "muahaha",
+                ":3",
+                ":>",
+                "real"
+               ]
 
-surprised_words = []
+# Neutral words (Gray):
+
+surprised_words = ["shock", 
+                   "blue", 
+                   "jaw", 
+                   "drop", 
+                   "twist", 
+                   "wow", 
+                   "what", 
+                   "who", 
+                   "why", 
+                   "kick", 
+                   "reveal", 
+                   "bomb", 
+                   "stun", 
+                   "amaz", 
+                   "wonder", 
+                   "thunder", 
+                   "wrinkle", 
+                   "huh", 
+                   "hell", 
+                   "fuck", 
+                   "shit", 
+                   "bruh"
+                  ]
 
 text_split = test1.split()
 
