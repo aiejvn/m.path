@@ -2,7 +2,9 @@ import numpy as np
 import tensorflow as tf
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# Negative words:
+# Negative words (Red):
+# including annoyance, which is a weaker form of anger
+
 angry_words = ["hate", 
                "angry", 
                "anger", 
@@ -53,7 +55,8 @@ sad_words = ["bitter",
              "weep", 
              "low", 
              "unhappy", 
-             "troubled"]
+             "troubled"
+            ]
 
 scared_words = ["afraid", 
                 "anxious", 
@@ -66,7 +69,9 @@ scared_words = ["afraid",
                 "shake", 
                 "terrif", 
                 "aghast", 
-                "terror"]
+                "terror",
+                "oh no"
+               ]
 
 disgust_words = ["suck", 
                  "appal", 
@@ -92,7 +97,8 @@ disgust_words = ["suck",
 
 negative_words = angry_words + sad_words + scared_words + disgust_words
 
-# Happy words (green):
+# Positive words (Green):
+# for now, encompasses excitement
 
 happy_words = ["cheerful", 
                "delight", 
@@ -135,7 +141,18 @@ happy_words = ["cheerful",
                "better", 
                "pass"]
 
-# Neutral words (gray):
+# The speaker is most likely in a good mood and kidding around! 
+amused_words = ["hehe",
+                "LOL",
+               "XD",
+               "LMAO",
+               "LMFAO",
+               "haha",
+               "muahaha",
+                ":3",
+                ":>",
+                "real"
+               ]
 
 surprised_words = ["shock", 
                    "blue", 
