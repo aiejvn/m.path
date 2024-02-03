@@ -1,42 +1,6 @@
-# import sys
 import numpy as np
-# from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
-import keras
-import keras_nlp
-# USE KAGGLE - COPY INTO KAGGLE + DOWNLOAD THE GPT-2 MODEL ON THE WEBSITE
-
-# Doesn't make fanfiction + can be hypertuned!
-# # EN no CNN_DAILYMAIL does not produce as good of results
-
-gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset("gpt2_base_en_cnn_dailymail")
-gpt2_lm.compile(sampler="greedy") # Very deterministic/stable
-test1 = gpt2_lm.generate("I hate you! I am feeling ", max_length=100)
-print(test1)
-
-gpt2_lm.compile(sampler=keras_nlp.samplers.BeamSampler(num_beams=2))
-test2 = gpt2_lm.generate("Today was a great day. I am feeling ", max_length=100) 
-# Considers 10 possible outcomes and takes most likely one, is also very stable
-print(test2)
-
-gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset("gpt2_base_en_cnn_dailymail")
-gpt2_lm.compile(sampler="random") # Not very deterministic - very unstable
-test1 = gpt2_lm.generate("The world hates me. I am feeling ", max_length=1000)
-print(test1)
-
-gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset("gpt2_base_en_cnn_dailymail")
-gpt2_lm.compile(sampler="greedy") # Very deterministic/stable
-test1 = gpt2_lm.generate("I hate you! ", max_length=100)
-print(test1)
-
-gpt2_lm.compile(sampler=keras_nlp.samplers.BeamSampler(num_beams=2))
-test2 = gpt2_lm.generate("Today was a great day. ", max_length=100) 
-# Considers 10 possible outcomes and takes most likely one, is also very stable
-print(test2)
-
-gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset("gpt2_base_en_cnn_dailymail")
-gpt2_lm.compile(sampler="random") # Not very deterministic - very unstable
-test1 = gpt2_lm.generate("The world hates me. ", max_length=1000)
-print(test1)
+import tensorflow as tf
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Negative words:
 angry_words = ["hate", 
@@ -58,7 +22,12 @@ angry_words = ["hate",
                "irritate", 
                "outrage", 
                "frustrate", 
-               "irritate" ]
+               "irritate", 
+               "kill yourself", 
+               "kys", 
+               "hell", 
+               "angry", 
+               "bruh"]
 
 sad_words = ["bitter", 
              "dismal", 
@@ -117,7 +86,9 @@ disgust_words = ["suck",
                  "sick", 
                  "fed up", 
                  "gross", 
-                 "squeam"]
+                 "squeam", 
+                 "indignant", 
+                 "invasion", "freak"]
 
 negative_words = angry_words + sad_words + scared_words + disgust_words
 
@@ -154,27 +125,93 @@ happy_words = ["cheerful",
                "perky", 
                "live", 
                "laugh", 
-               "pink"]
+               "pink", 
+               "amaz", 
+               "good", 
+               "ha", 
+               "har", 
+               "win",
+               "fine", 
+               "better", 
+               "pass"]
 
 # Neutral words (gray):
 
-surprised_words = []
+surprised_words = ["shock", 
+                   "blue", 
+                   "jaw", 
+                   "drop", 
+                   "twist", 
+                   "wow", 
+                   "what", 
+                   "who", 
+                   "why", 
+                   "kick", 
+                   "reveal", 
+                   "bomb", 
+                   "stun", 
+                   "amaz", 
+                   "wonder", 
+                   "thunder", 
+                   "wrinkle", 
+                   "huh", 
+                   "hell", 
+                   "fuck", 
+                   "shit", 
+                   "bruh"]
 
-text_split = test1.split()
+model_name = "gpt2"
 
-emotions_likelihood = {
-    "negative": 0,
-    "angry": 0,
-    "sad": 0,
-    "scared": 0,
-    "disgust": 0,
-    "happy": 0,
-    "surprised": 0
-}
+gpt2_lm = GPT2LMHeadModel.from_pretrained(model_name)
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
-for i in text_split:
-    match i:
-        case i in negative_words:
+def detect_emotion(sample_message):
+    
+    # loop for some words, add a random compile word, then continue
+    
+    expanded_sample = ""
+    
+    for i in range(100):
+        
+        input_ids = tokenizer.encode(sample_message, return_tensors="pt") # 1 x 13
+
+        output1 = gpt2_lm.generate(
+            input_ids, 
+            max_length=len(input_ids)+18, 
+            num_beams=5, 
+            no_repeat_ngram_size=2, 
+            top_k=50, 
+            top_p=0.95, 
+            temperature=0.7, 
+        ) # 1 x 18
+        expanded_sample += tokenizer.decode(output1[0], skip_special_tokens=True) # String
+        
+        output2 = gpt2_lm.generate(
+            input_ids, 
+            max_length=len(input_ids)+12, # size of max_length must always be greater than the input token size
+            num_beams=5, 
+            no_repeat_ngram_size=2, 
+            top_k=50, 
+            top_p=0.95, 
+            temperature=1.3, 
+        )
+        expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True)
+        # to prevent 'i am feel' looping
+    
+    print(f"Expanded message: {expanded_sample}") # Debug print, comment out in beta
+    text_split = expanded_sample.lower().split()
+    n = len(text_split)
+    emotions_likelihood = {
+        "negative": 0,
+        "angry": 0,
+        "sad": 0,
+        "scared": 0,
+        "disgust": 0,
+        "happy": 0,
+        "surprised": 0
+    }
+    for i in text_split:
+        if i in negative_words:
             emotions_likelihood["negative"] += 1
             if i in angry_words:
                 emotions_likelihood["angry"] += 1
@@ -182,12 +219,26 @@ for i in text_split:
                 emotions_likelihood["sad"] += 1
             else:
                 emotions_likelihood["scared"] += 1
-            break
-        case i in happy_words:
+        elif i in happy_words:
             emotions_likelihood["happy"] += 1
-            break
-        case i in surprised_words:
+        elif i in surprised_words:
             emotions_likelihood["surprised"] += 1
-            break
-            
-print(emotions_likelihood.keys(), emotions_likelihood.values())
+    for key in emotions_likelihood.keys():
+        emotions_likelihood[key] = str(emotions_likelihood[key] / n * 100) + "%" 
+    return emotions_likelihood
+
+if __name__ == "__main__":
+    print("---------------------------------------------------------------")
+    sample_messages = [
+        "Freaking hell mfs acting like THEY are the groundhogs", 
+        "Okay this is the least prepared I’ve ever been for a test ever since data management", 
+        "harharhar", 
+        "Hopefully those kids end up homeless", 
+        "BRUHHHH UR GOING TO WALMART JUST TO GET WATER?????", 
+        "My marks are fine and I did pass (I did slightly better than I thought I had done actually lol)"
+    ]
+
+    for sample_message in sample_messages:
+        result = detect_emotion(sample_message.lower().strip("!.,=")) #  + " . I am feeling" optional
+        for i in result:
+            print(f"{i}: {result[i]}")
