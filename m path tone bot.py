@@ -2,9 +2,6 @@ import numpy as np
 import tensorflow as tf
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# Negative words (Red):
-# including annoyance, which is a weaker form of anger
-
 angry_words = ["hate", 
                "angry", 
                "anger", 
@@ -28,8 +25,19 @@ angry_words = ["hate",
                "kill yourself", 
                "kys", 
                "hell", 
-               "angry", 
-               "bruh"]
+               "angry",
+               "SHUT UP",
+               "annoyed",
+               ">:(",
+               ">:T",
+               "😤",
+               "😠",
+               "😡",
+               "🤬",
+               "bruh",
+               "what.",
+               "NOT"
+              ]
 
 sad_words = ["bitter", 
              "dismal", 
@@ -55,7 +63,17 @@ sad_words = ["bitter",
              "weep", 
              "low", 
              "unhappy", 
-             "troubled"
+             "troubled",
+             ":(",
+             ":\'(",
+             "😥",
+             "😓",
+             "☹",
+             "🙁",
+             "😭",
+             "😢",
+             "😦",
+             "crying"
             ]
 
 scared_words = ["afraid", 
@@ -70,7 +88,11 @@ scared_words = ["afraid",
                 "terrif", 
                 "aghast", 
                 "terror",
-                "oh no"
+                "oh no",
+                "😱",
+                "😰",
+                "😨",
+                ":\'0"
                ]
 
 disgust_words = ["suck", 
@@ -93,13 +115,35 @@ disgust_words = ["suck",
                  "gross", 
                  "squeam", 
                  "indignant", 
-                 "invasion", "freak"]
+                 "invasion", 
+                 "freak",
+                 "ugh",
+                 "🤢",
+                 "🤮"
+                ]
+
+disappointed_words = ["man...",
+                      "alright...",
+                      "...",
+                      "ok...",
+                      ":/",
+                      ":T",
+                      "yeah...",
+                      "💀",
+                      "😶",
+                      "😐",
+                      "😑",
+                      "🙄",
+                      "okay.",
+                      "😔",
+                      "😞"
+                     ]
 
 negative_words = angry_words + sad_words + scared_words + disgust_words
 
-# Positive words (Green):
-# for now, encompasses excitement
+# Positive words (green):
 
+# for now, encompasses excitement
 happy_words = ["cheerful", 
                "delight", 
                "ecstatic", 
@@ -137,11 +181,26 @@ happy_words = ["cheerful",
                "ha", 
                "har", 
                "win",
-               "fine", 
-               "better", 
-               "pass"]
+               "yippee",
+               "hooray",
+               "nice",
+               ":)",
+               ":D",
+               "let's go!",
+               "omg",
+               "amazing!",
+               "☺",
+               "😊",
+               "🤩",
+               "😃",
+               "😁",
+               "😄",
+               "smil",
+               "grin",
+               "happ"
+              ]
 
-# The speaker is most likely in a good mood and kidding around! 
+# The speaker is most likely in a good mood and kidding around/playful! 
 amused_words = ["hehe",
                 "LOL",
                "XD",
@@ -151,8 +210,19 @@ amused_words = ["hehe",
                "muahaha",
                 ":3",
                 ":>",
-                "real"
-               ]
+                "real",
+                ":P",
+                "😋",
+                "😏",
+                "🤭",
+                "😛",
+                "😝",
+                "😜"
+                ]
+
+positive_words = happy_words + amused_words
+
+# Neutral words (gray):
 
 surprised_words = ["shock", 
                    "blue", 
@@ -175,7 +245,23 @@ surprised_words = ["shock",
                    "hell", 
                    "fuck", 
                    "shit", 
-                   "bruh"]
+                   "bruh",
+                   "what?!",
+                   "😲",
+                   ":0",
+                   "🤯", 
+                   "😳", 
+                   "omg",
+                   "o"
+                  ]
+
+# slang or various other terms that share multiple meanings
+# if the AI encounters any of these then there should be an additional message
+# below letting the user be aware of its multifaceted meanings 
+# scrapes a website for its most common usage definition with citations of course
+true_neutral = [
+                
+                ]
 
 model_name = "gpt2"
 
