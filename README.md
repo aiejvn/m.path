@@ -1,2 +1,2 @@
 # m.path
-m.path is your personal emotional assistant. Further details are disclosed in the README.
+m.path is your personal emotional assistant. Further details will be added later.
