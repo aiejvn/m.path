@@ -311,7 +311,7 @@ def detect_emotion(sample_message):
             top_p=0.95, 
             temperature=0.7, 
         ) # 1 x 18
-        expanded_sample += tokenizer.decode(output1[0], skip_special_tokens=True) # String
+        expanded_sample += tokenizer.decode(output1[0], skip_special_tokens=True) + " " # String
     
         output2 = gpt2_lm.generate(
             input_ids, 
@@ -322,7 +322,7 @@ def detect_emotion(sample_message):
             top_p=0.95, 
             temperature=1.3, 
         )
-        expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True)
+        expanded_sample += tokenizer.decode(output2[0], skip_special_tokens=True) + " "
         # to prevent 'i am feel' looping
         
     print("---------------------------------------------------------------")
