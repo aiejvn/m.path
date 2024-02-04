@@ -1,4 +1,3 @@
-# add torch and transformers to requirements.txt
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Negative words:
@@ -331,7 +330,7 @@ def detect_emotion(sample_message):
     print("---------------------------------------------------------------")
     
     text_split = expanded_sample.lower().split()
-    n = len(text_split)
+    num_emotion_words = 0
     emotions_likelihood = {
         "negative": 0,
         "positive": 0,
@@ -346,6 +345,8 @@ def detect_emotion(sample_message):
     }
     for i in text_split:
         if i in negative_words:
+            num_emotion_words += 1
+            
             emotions_likelihood["negative"] += 1
             if i in angry_words:
                 emotions_likelihood["angry"] += 1
@@ -358,15 +359,20 @@ def detect_emotion(sample_message):
             else:
                 emotions_likelihood["scared"] += 1
         elif i in positive_words:
+            num_emotion_words += 1
+            
             emotions_likelihood["positive"] += 1
             if i in happy_words:
                 emotions_likelihood["happy"] += 1
             else:
                 emotions_likelihood["amused"] += 1
         elif i in surprised_words:
+            num_emotion_words += 1
+            
             emotions_likelihood["surprised"] += 1
     for key in emotions_likelihood.keys():
-        emotions_likelihood[key] = str(emotions_likelihood[key] / n * 100) + "%" 
+        if num_emotion_words != 0:
+            emotions_likelihood[key] = emotions_likelihood[key] / num_emotion_words * 100  
     return emotions_likelihood
 
    
