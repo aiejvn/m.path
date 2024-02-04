@@ -2,6 +2,7 @@ import discord
 import os
 from discord.ext import commands
 from new_nlp_algo import detect_emotion
+from discord.ext.commands import has_permissions
 
 # enables the bot's intentions/permissions
 intents = discord.Intents.default()
@@ -51,7 +52,7 @@ class Commands(commands.Bot):
 
     async def m_menu(self, options):
         if options.content.startswith(self.prefix + 'help'):
-            pass
+            await self.m_help(options)
 
             # to eventually be merged to read
         elif options.content.startswith(self.prefix + 'image'):
@@ -59,15 +60,23 @@ class Commands(commands.Bot):
 
             # reads the next message after the command
         elif options.content.startswith(self.prefix + 'read'):
+            await options.delete()
             await self.m_read(options)
 
         elif options.content.startswith(self.prefix + 'prefix'):
             await self.m_prefix(options)
 
-    async def m_help(self, guide):
-        pass
+    async def m_help(self, options):
+        await options.author.send(f"*:･ﾟ✧*:･ﾟ✧ \nYou can summon me with the prefix {self.prefix} ! \n \n"
+                                  f"**{self.prefix}read**: analyzes previous message. \n"
+                                  f"**{self.prefix}prefix**: change default prefix. \n"
+                                  f"**{self.prefix}help**: I will DM you a help guide. I am always here to guide you!")
 
     async def m_prefix(self, message):
+        if not message.author.guild_permissions.administrator:
+            await message.channel.send("Sorry, you do not have access to this command!")
+            return
+
         prefix = message.content.replace(self.prefix + 'prefix', '')
 
         if prefix.strip() == "":
@@ -111,7 +120,7 @@ class Commands(commands.Bot):
         if f"{emotion_ranked[0][1]:.3f}" == "0.000":
             await message_to_anaylze.channel.send(f"Sorry, human emotions are rather complicated and require more input"
                                                   f" data. I am currently not too sure what that message implies!")
-        
+
             self.read_message = False
             return
 
