@@ -1,6 +1,7 @@
 import discord
 import os
 from discord.ext import commands
+from new_nlp_algo import detect_emotion
 
 # enables the bot's intentions/permissions
 intents = discord.Intents.default()
@@ -16,15 +17,15 @@ results_message = "Did these results help you?"
 
 
 class Commands(commands.Bot):
-    def __init__(self, prefix):
+    def __init__(self):
         # super initializing for the discord bot commands
-        commands.Bot.__init__(self, command_prefix=prefix, intents=intents)
+        commands.Bot.__init__(self, command_prefix="em.", intents=intents)
 
         self.feedback_received = True
         self.read_message = False
         self.read_message_author_id = 0
         self.results_id = 0
-        self.prefix = prefix
+        self.prefix = "em."
 
     @bot.event
     async def on_ready(self):
@@ -43,8 +44,7 @@ class Commands(commands.Bot):
 
         # if message is from the user
         if self.read_message:
-            if self.read_message_author_id == message.author.id:
-                await self.m_anaylze(message)
+            pass
 
         else:
             await self.m_menu(message)
@@ -78,12 +78,10 @@ class Commands(commands.Bot):
         await message.channel.send(f"**{self.prefix}** is the new prefix.")
 
     async def m_read(self, command):
-        print(command.author.id)  # temporary
-
         self.read_message_author_id = command.author.id
-        await command.channel.send(
-            f"Okay {command.author.display_name}, what message would you like me to read?")
-        self.read_message = True
+
+        messages = [m async for m in command.channel.history(limit=2)]
+        await self.m_anaylze(messages[1])
 
     @bot.event
     async def on_reaction_add(self, reaction, react_user):
@@ -104,12 +102,23 @@ class Commands(commands.Bot):
     async def m_anaylze(self, message_to_anaylze):
         await message_to_anaylze.channel.send("Analyzing message...")
         message_content = message_to_anaylze.content  # stores/overwrites message temporarily
+        print(message_content)
 
-        # Code for reading the message content (TBC)
+        # reads the message content
+        results = detect_emotion(message_content)
+        emotion_ranked = sorted(results.items(), key=lambda x: x[1], reverse=True)
 
-        await message_to_anaylze.channel.send(f"Results: {message_content}")
+        if f"{emotion_ranked[0][1]:.3f}" == "0.000":
+            await message_to_anaylze.channel.send(f"Sorry, human emotions are rather complicated and require more input"
+                                                  f" data. I am currently not too sure what that message implies!")
+        
+            self.read_message = False
+            return
 
-        # Code for showing results here (TBC)
+        await message_to_anaylze.channel.send(f"Analyzed message is likely: \n \
+            {emotion_ranked[0][0]}: {emotion_ranked[0][1]:.3f}\n \
+            {emotion_ranked[1][0]}: {emotion_ranked[1][1]:.3f}\n \
+            {emotion_ranked[2][0]}: {emotion_ranked[2][1]:.3f}")
 
         await message_to_anaylze.channel.send(results_message)
         self.read_message = False
