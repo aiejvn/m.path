@@ -1,97 +1,115 @@
-load_dotenv()
+import discord
+import os
+from discord.ext import commands
 
-TOKEN = os.getenv('DISCORD_TOKEN')
-
+# enables the bot's intentions/permissions
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 
+# image path (temporarily stored locally)
 m_path = os.path.join(os.environ['USERPROFILE'], 'Desktop')
-
 image = m_path + '\m.path\DUCK.png'
 
 bot = discord.Client(intents=intents)
-
-hello = "hello"
-read_message = False
-feedback_recieved = True
-read_message_author_id = 0
 results_message = "Did these results help you?"
- # Please react with :white_check_mark: if they did, or :x: if no. Feedback tells me if I'm doing a good job, or if I need to improve!
-results_id = 0
 
-@bot.event
-async def on_ready():
-    print(f'{bot.user} has connected to Discord!')
-    
 
-@bot.event
-async def on_message(message):
-    global read_message
-    global read_message_author_id
-    global feedback_recieved
+class Commands(commands.Bot):
+    def __init__(self, prefix):
+        # super initializing for the discord bot commands
+        commands.Bot.__init__(self, command_prefix=prefix, intents=intents)
 
-    if message.author == bot.user:
-        if message.content == results_message:
-            await message.add_reaction("✅")
-            await message.add_reaction("❌")
-            feedback_recieved = False
+        self.feedback_received = True
+        self.read_message = False
+        self.read_message_author_id = 0
+        self.results_id = 0
+        self.prefix = prefix
+
+    @bot.event
+    async def on_ready(self):
+        print(f'{self.user} has connected to Discord!')
+
+    @bot.event
+    async def on_message(self, message):
+        # if message is from the bot
+        if message.author == self.user:
+            if message.content == results_message:
+                await message.add_reaction("✅")
+                await message.add_reaction("❌")
+                self.feedback_received = False
+            else:
+                return
+
+        # if message is from the user
+        if self.read_message:
+            if self.read_message_author_id == message.author.id:
+                await self.m_anaylze(message)
+
         else:
+            await self.m_menu(message)
+
+    async def m_menu(self, options):
+        if options.content.startswith(self.prefix + 'help'):
+            pass
+
+            # to eventually be merged to read
+        elif options.content.startswith(self.prefix + 'image'):
+            await options.channel.send(file=discord.File(image))
+
+            # reads the next message after the command
+        elif options.content.startswith(self.prefix + 'read'):
+            await self.m_read(options)
+
+        elif options.content.startswith(self.prefix + 'prefix'):
+            await self.m_prefix(options)
+
+    async def m_help(self, guide):
+        pass
+
+    async def m_prefix(self, message):
+        prefix = message.content.replace(self.prefix + 'prefix', '')
+
+        if prefix.strip() == "":
+            await message.channel.send("Please enter a valid prefix.")
             return
-    
 
-    if not(read_message):
-        if message.content.startswith('m.image'):
-            await message.channel.send(file=discord.File(image))
+        self.prefix = prefix.strip(" ")
+        await message.channel.send(f"**{self.prefix}** is the new prefix.")
 
-        if message.content.startswith('m.read'):
-            await m_read(message)
-    else:
-        if (read_message_author_id == message.author.id):
-            await m_anaylze(message)
+    async def m_read(self, command):
+        print(command.author.id)  # temporary
 
+        self.read_message_author_id = command.author.id
+        await command.channel.send(
+            f"Okay {command.author.display_name}, what message would you like me to read?")
+        self.read_message = True
 
-@bot.event
-async def on_reaction_add(reaction, react_user):
-    global feedback_recieved
+    @bot.event
+    async def on_reaction_add(self, reaction, react_user):
+        if react_user == self.user:
+            return
 
-    if react_user == bot.user:
-        return
-    if reaction.message.content == results_message and not feedback_recieved:
-        if reaction.emoji == "✅":
-            await reaction.message.channel.send("Thanks for the feedback! Glad to hear I did a good job!")
-            feedback_recieved = True
-        elif reaction.emoji == "❌":
-            await reaction.message.channel.send("Sorry to hear that. I'll try to do better next time!")
-            feedback_recieved = True
+        # responds to user feedback reactions
+        if reaction.message.content == results_message and not self.feedback_received:
+            if reaction.emoji == "✅":
+                await reaction.message.channel.send("Thanks for the feedback!")
+                self.feedback_received = True
 
+            elif reaction.emoji == "❌":
+                await reaction.message.channel.send(
+                    "Sorry to hear that. I'll try to do better next time!")
+                self.feedback_received = True
 
-async def m_read(command):
-    global read_message
-    global read_message_author_id
+    async def m_anaylze(self, message_to_anaylze):
+        await message_to_anaylze.channel.send("Analyzing message...")
+        message_content = message_to_anaylze.content  # stores/overwrites message temporarily
 
-    read_message_author_id = command.author.id
-    print(command.author.id)
-    message_author_name = command.author.display_name
-    await command.channel.send(f"Ok {message_author_name}, what message would you like me to read?")
-    read_message = True
+        # Code for reading the message content (TBC)
 
-async def m_anaylze(message_to_anaylze):
-    global read_message 
-    print("Wow")
-    await message_to_anaylze.channel.send("Ok, give me a little bit to analyze the message...")
-    message_content = message_to_anaylze.content
+        await message_to_anaylze.channel.send(f"Results: {message_content}")
 
-    # Put the code for reading the message content here
+        # Code for showing results here (TBC)
 
-    await message_to_anaylze.channel.send(f"Ok, here are the results: {message_content}")
-   
-    # Put the code for showing results here
-
-    await message_to_anaylze.channel.send(results_message)
-    read_message = False
-
-def main():
-    bot.run(TOKEN)
-
-main()
+        await message_to_anaylze.channel.send(results_message)
+        self.read_message = False
